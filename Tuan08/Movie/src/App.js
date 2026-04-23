@@ -1,0 +1,74 @@
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Login from './pages/Login';
+import Home from './pages/Home';
+import Checkout from './pages/Checkout';
+import Payment from './pages/Payment';
+import Register from './pages/Register';
+import './index.css';
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [cart, setCart] = useState([]);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setCart([]);
+    localStorage.removeItem('user');
+    localStorage.removeItem('cart');
+  };
+
+  const lineKey = (item) => item.cartLineId ?? item.id;
+
+  const addToCart = (payload) => {
+    const quantity = payload.quantity ?? payload.seats?.length ?? 1;
+    const line = {
+      cartLineId: `${payload.id}-${Date.now()}`,
+      ...payload,
+      quantity
+    };
+    setCart((prev) => {
+      const next = [...prev, line];
+      localStorage.setItem('cart', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const removeFromCart = (key) => {
+    setCart((prev) => {
+      const next = prev.filter((item) => lineKey(item) !== key);
+      localStorage.setItem('cart', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-brand-light">
+        <Navbar user={user} onLogout={handleLogout} cartCount={cart.length} />
+        <Routes>
+          <Route path="/login" element={!user ? <Login onLogin={handleLogin} /> : <Navigate to="/" />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={user ? <Home onAddToCart={addToCart} /> : <Navigate to="/login" />} />
+          <Route path="/checkout" element={user ? <Checkout cart={cart} onRemoveFromCart={removeFromCart} /> : <Navigate to="/login" />} />
+          <Route path="/payment" element={user ? <Payment /> : <Navigate to="/login" />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
