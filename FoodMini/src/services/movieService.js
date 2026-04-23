@@ -1,7 +1,7 @@
 import { movieApi } from '../api/axiosClient';
 
 export const movieService = {
-  // Lay tat ca phim
+  // Lấy tất cả phim
   getAllMovies: async () => {
     try {
       const response = await movieApi.get('/api/movies');
@@ -11,7 +11,7 @@ export const movieService = {
     }
   },
 
-  // Lay phim theo ID
+  // Lấy phim theo ID
   getMovieById: async (id) => {
     try {
       const response = await movieApi.get(`/api/movies/${id}`);
@@ -21,7 +21,7 @@ export const movieService = {
     }
   },
 
-  // Loc phim theo the loai
+  // Lọc phim theo thể loại
   getMoviesByType: async (type) => {
     try {
       const response = await movieApi.get(`/api/movies?type=${type}`);
@@ -31,7 +31,7 @@ export const movieService = {
     }
   },
 
-  // Lay danh sach the loai phim
+  // Lấy danh sách thể loại phim
   getMovieTypes: async () => {
     try {
       const response = await movieApi.get('/api/movies/types');
